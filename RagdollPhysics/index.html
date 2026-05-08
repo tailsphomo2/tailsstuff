@@ -1,85 +1,53 @@
 <!DOCTYPE html>
+<html>
+<body style="margin:0; overflow:hidden; background:#111;">
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+let width, height, mouse = {x:0, y:0, down:false, target:null};
+const gravity = 0.5, friction = 0.98;
 
-const gravity = 0.5;
-const ragdolls = [];
-
-class BodyPart {
-  constructor(x, y, radius) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.vx = (Math.random() - 0.5) * 4;
-    this.vy = 0;
-  }
-
-  update() {
-    this.vy += gravity;
-    this.x += this.vx;
-    this.y += this.vy;
-
-    if (this.y + this.radius > canvas.height) {
-      this.y = canvas.height - this.radius;
-      this.vy *= -0.5;
+class Point {
+    constructor(x, y) { this.x = this.oldX = x; this.y = this.oldY = y; }
+    update() {
+        let vx = (this.x - this.oldX) * friction, vy = (this.y - this.oldY) * friction;
+        this.oldX = this.x; this.oldY = this.y;
+        this.x += vx; this.y += vy + gravity;
+        if(this.y > height) this.y = height;
     }
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'white';
-    ctx.fill();
-  }
 }
 
-function spawnRagdoll() {
-  const ragdoll = {
-    head: new BodyPart(300, 100, 15),
-    body: new BodyPart(300, 150, 20),
-    leftArm: new BodyPart(260, 150, 10),
-    rightArm: new BodyPart(340, 150, 10),
-    leftLeg: new BodyPart(280, 220, 10),
-    rightLeg: new BodyPart(320, 220, 10)
-  };
-
-  ragdolls.push(ragdoll);
+class Stick {
+    constructor(p1, p2, len) { this.p1 = p1; this.p2 = p2; this.len = len; }
+    update() {
+        let dx = this.p2.x - this.p1.x, dy = this.p2.y - this.p1.y;
+        let dist = Math.sqrt(dx*dx + dy*dy), diff = (this.len - dist) / dist * 0.5;
+        this.p1.x -= dx * diff; this.p1.y -= dy * diff;
+        this.p2.x += dx * diff; this.p2.y += dy * diff;
+    }
 }
 
-function drawConnections(r) {
-  ctx.strokeStyle = 'white';
-  ctx.lineWidth = 4;
+let pts = [new Point(200,100), new Point(200,150), new Point(170,180), new Point(230,180), new Point(180,250), new Point(220,250)];
+let sticks = [new Stick(pts[0],pts[1],50), new Stick(pts[1],pts[2],40), new Stick(pts[1],pts[3],40), new Stick(pts[1],pts[4],80), new Stick(pts[1],pts[5],80)];
 
-  function line(a, b) {
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.stroke();
-  }
-
-  line(r.head, r.body);
-  line(r.body, r.leftArm);
-  line(r.body, r.rightArm);
-  line(r.body, r.leftLeg);
-  line(r.body, r.rightLeg);
+function loop() {
+    ctx.clearRect(0,0,width,height);
+    if(mouse.down && mouse.target) { mouse.target.x = mouse.x; mouse.target.y = mouse.y; }
+    pts.forEach(p => p.update());
+    for(let i=0; i<5; i++) sticks.forEach(s => s.update());
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 4;
+    sticks.forEach(s => { ctx.beginPath(); ctx.moveTo(s.p1.x, s.p1.y); ctx.lineTo(s.p2.x, s.p2.y); ctx.stroke(); });
+    requestAnimationFrame(loop);
 }
 
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ragdolls.forEach(r => {
-    Object.values(r).forEach(part => {
-      part.update();
-      part.draw();
-    });
-
-    drawConnections(r);
-  });
-
-  requestAnimationFrame(animate);
-}
-
-spawnRagdoll();
-animate();
+window.onresize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
+window.onmousedown = (e) => { 
+    mouse.down = true; 
+    pts.forEach(p => { if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 30) mouse.target = p; });
+};
+window.onmouseup = () => { mouse.down = false; mouse.target = null; };
+window.onmousemove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
+window.onresize(); loop();
 </script>
-
 </body>
 </html>
