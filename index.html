@@ -2,22 +2,102 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My GitHub Arcade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tailsphomo's games</title>
     <style>
-        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px; }
-        h1 { text-align: center; color: #00ffcc; text-transform: uppercase; letter-spacing: 3px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; max-width: 1100px; margin: 50px auto; }
-        .card { background: #1e1e1e; border-radius: 12px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; transition: 0.3s; }
-        .card:hover { transform: scale(1.05); border-color: #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); }
-        .preview { width: 100%; height: 160px; background: #252525; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .info { padding: 15px; }
-        .info h3 { margin: 0; font-size: 1.3rem; }
-        .info p { color: #888; font-size: 0.9rem; margin-top: 5px; }
+        body { 
+            background: #121212; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0; 
+            padding: 40px 20px; 
+        }
+        
+        .header-container { text-align: center; margin-bottom: 50px; }
+        
+        h1 { font-size: 2.5rem; margin: 0; letter-spacing: 1px; }
+        .discord-tag { color: #00ffd2; font-size: 1.1rem; margin-top: 10px; opacity: 0.8; }
+        
+        .game-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 25px; 
+            width: 100%; 
+            max-width: 1100px; 
+        }
+        
+        .game-card { 
+            background: #1e1e1e; 
+            border-radius: 15px; 
+            padding: 30px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: #fff; 
+            border: 1px solid #333; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .game-card:hover { 
+            transform: translateY(-10px); 
+            border-color: #00ffd2; 
+            background: #252525; 
+            box-shadow: 0 8px 25px rgba(0, 255, 210, 0.2);
+        }
+        
+        .emoji { font-size: 60px; display: block; margin-bottom: 15px; }
+        .game-title { font-weight: bold; font-size: 1.4rem; display: block; margin-bottom: 8px; }
+        .game-desc { font-size: 0.9rem; color: #aaa; line-height: 1.4; }
+
+        /* Smooth scroll for mobile */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .game-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <h1>🕹️ GitHub Games Home</h1>
-    <div class="grid">
+
+    <div class="header-container">
+        <h1>tailsphomo's games</h1>
+        <div class="discord-tag">@tailsphomothesecond (discord)</div>
+    </div>
+
+    <div class="game-grid">
+        <!-- Dino Run -->
+        <a href="dino.html" class="game-card">
+            <span class="emoji">🦖</span>
+            <span class="game-title">Dino Run</span>
+            <p class="game-desc">The classic offline desert runner. Don't hit the cacti!</p>
+        </a>
+
+        <!-- Tetris -->
+        <a href="tetris.html" class="game-card">
+            <span class="emoji">🧱</span>
+            <span class="game-title">Tetris</span>
+            <p class="game-desc">The ultimate block-stacking puzzle. High stakes, high speed.</p>
+        </a>
+
+        <!-- Hoops -->
+        <a href="hoops.html" class="game-card">
+            <span class="emoji">🏀</span>
+            <span class="game-title">Hoops</span>
+            <p class="game-desc">Test your aim. Can you beat the high score from the three-point line?</p>
+        </a>
+        
+        <!-- People Playground (Placeholder) -->
+        <a href="playground.html" class="game-card">
+            <span class="emoji">🧪</span>
+            <span class="game-title">Ragdoll Sandbox</span>
+            <p class="game-desc">A physics playground for experimentation and ragdoll fun.</p>
+        </a>
+    </div>
+
+</body>
+</html>
         <!-- CHROME DINO (Local) -->
         <a href="dino/" class="card">
             <div class="preview">🦖</div>
