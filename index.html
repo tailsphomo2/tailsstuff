@@ -1,148 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Game Portal</title>
+    <title>Web-Man: Swing City</title>
     <style>
-        /* Modern CSS setup */
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #38bdf8;
-            --hover-shadow: rgba(56, 189, 248, 0.4);
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        header {
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-            background: linear-gradient(90deg, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        p { opacity: 0.7; font-size: 1.1rem; }
-
-        /* Game Tile Grid */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 30px;
-            width: 90%;
-            max-width: 1100px;
-            padding: 60px 0;
-        }
-
-        /* Tile Styling & Effects */
-        .game-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px 20px;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .game-card:hover {
-            transform: translateY(-12px);
-            border-color: var(--accent-color);
-            box-shadow: 0 20px 40px var(--hover-shadow);
-        }
-
-        /* Glossy Shine Effect on Hover */
-        .game-card::after {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .game-card:hover::after { opacity: 1; }
-
-        .icon {
-            font-size: 4rem;
-            display: block;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
-        }
-
-        .title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        footer {
-            margin-top: auto;
-            padding-bottom: 30px;
-            opacity: 0.4;
-            font-size: 0.85rem;
-        }
+        body { margin: 0; overflow: hidden; background: #020617; font-family: sans-serif; }
+        #stats { position: absolute; top: 20px; left: 20px; color: #38bdf8; pointer-events: none; }
     </style>
 </head>
 <body>
+    <div id="stats">
+        <h2>WEB-MAN</h2>
+        [CLICK & HOLD] Shoot Web | [W/A/D] Move Air
+    </div>
+    <canvas id="c"></canvas>
 
-    <header>
-        <h1>Game Portal</h1>
-        <p>Choose your experience</p>
-    </header>
+<script>
+const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+let w, h, mouse = {x:0, y:0, down:false};
 
-    <main class="game-grid">
-        <!-- Tile 1: CookieClicker -->
-        <a href="CookieClicker/index.html" class="game-card">
-            <span class="icon">🍪</span>
-            <span class="title">Cookie Clicker</span>
-        </a>
+// Physics Constants
+const gravity = 0.4, friction = 0.99, airResistance = 0.995;
+let player = { x: 100, y: 100, vx: 0, vy: 0, r: 10 };
+let web = { active: false, anchorX: 0, anchorY: 0, length: 0 };
+let buildings = [];
 
-        <!-- Tile 2: RagdollPhysics -->
-        <a href="RagdollPhysics/index.html" class="game-card">
-            <span class="icon">🕺</span>
-            <span class="title">Ragdoll Physics</span>
-        </a>
+function generateCity() {
+    buildings = [];
+    for(let i=0; i<20; i++) {
+        buildings.push({
+            x: i * 300 + Math.random() * 50,
+            w: 150 + Math.random() * 100,
+            h: 200 + Math.random() * 400
+        });
+    }
+}
 
-        <!-- Tile 3: TowerBlocks -->
-        <a href="TowerBlocks/index.html" class="game-card">
-            <span class="icon">🏗️</span>
-            <span class="title">Tower Blocks</span>
-        </a>
+function update() {
+    // Movement Logic
+    if (web.active) {
+        let dx = player.x - web.anchorX, dy = player.y - web.anchorY;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist > web.length) {
+            let angle = Math.atan2(dy, dx);
+            player.x = web.anchorX + Math.cos(angle) * web.length;
+            player.y = web.anchorY + Math.sin(angle) * web.length;
+            
+            // Constrain velocity to the circle of the swing
+            let v = Math.sqrt(player.vx*player.vx + player.vy*player.vy);
+            let vAngle = Math.atan2(player.vy, player.vx);
+            let tangentAngle = angle + Math.PI/2;
+            
+            player.vx = Math.cos(tangentAngle) * v * 0.99;
+            player.vy = Math.sin(tangentAngle) * v * 0.99;
+        }
+    }
 
-        <!-- Tile 4: Web-Man -->
-        <a href="Web-Man/index.html" class="game-card">
-            <span class="icon">🕸️</span>
-            <span class="title">Web-Man</span>
-        </a>
-    </main>
+    player.vy += gravity;
+    player.vx *= airResistance;
+    player.vy *= airResistance;
+    player.x += player.vx;
+    player.y += player.vy;
 
-    <footer>
-        &copy; 2024 Gaming Hub • Built with Space & Speed
-    </footer>
+    // Floor Collision
+    if (player.y > h - player.r) {
+        player.y = h - player.r;
+        player.vy *= -0.2;
+    }
 
+    // Camera follow (Simple)
+    ctx.setTransform(1, 0, 0, 1, -player.x + w/3, 0);
+}
+
+function draw() {
+    ctx.clearRect(player.x - w, 0, w*3, h);
+    
+    // Draw Buildings
+    ctx.fillStyle = '#1e293b';
+    buildings.forEach(b => {
+        ctx.fillRect(b.x, h - b.h, b.w, b.h);
+        // Windows
+        ctx.fillStyle = '#334155';
+        for(let j=0; j<b.h/40; j++) {
+            ctx.fillRect(b.x + 10, h - b.h + 10 + (j*40), b.w - 20, 20);
+        }
+        ctx.fillStyle = '#1e293b';
+    });
+
+    // Draw Web
+    if (web.active) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#f1f5f9';
+        ctx.lineWidth = 2;
+        ctx.moveTo(player.x, player.y);
+        ctx.lineTo(web.anchorX, web.anchorY);
+        ctx.stroke();
+    }
+
+    // Draw Player
+    ctx.fillStyle = '#ef4444'; // Red suit
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'white'; // Eyes
+    ctx.fillRect(player.x - 5, player.y - 5, 4, 3);
+    ctx.fillRect(player.x + 1, player.y - 5, 4, 3);
+
+    requestAnimationFrame(() => {
+        update();
+        draw();
+    });
+}
+
+window.onmousedown = (e) => {
+    mouse.down = true;
+    web.anchorX = e.clientX + (player.x - w/3);
+    web.anchorY = e.clientY;
+    let dx = player.x - web.anchorX, dy = player.y - web.anchorY;
+    web.length = Math.sqrt(dx*dx + dy*dy);
+    web.active = true;
+};
+
+window.onmouseup = () => {
+    web.active = false;
+    mouse.down = false;
+};
+
+window.onkeydown = (e) => {
+    if(e.key === 'a') player.vx -= 0.5;
+    if(e.key === 'd') player.vx += 0.5;
+};
+
+window.onresize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+window.onresize();
+generateCity();
+draw();
+</script>
 </body>
 </html>
