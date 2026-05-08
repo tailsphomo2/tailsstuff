@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+const gravity = 0.5;
+const ragdolls = [];
+
+class BodyPart {
+  constructor(x, y, radius) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.vx = (Math.random() - 0.5) * 4;
+    this.vy = 0;
+  }
+
+  update() {
+    this.vy += gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.y + this.radius > canvas.height) {
+      this.y = canvas.height - this.radius;
+      this.vy *= -0.5;
+    }
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+  }
+}
+
+function spawnRagdoll() {
+  const ragdoll = {
+    head: new BodyPart(300, 100, 15),
+    body: new BodyPart(300, 150, 20),
+    leftArm: new BodyPart(260, 150, 10),
+    rightArm: new BodyPart(340, 150, 10),
+    leftLeg: new BodyPart(280, 220, 10),
+    rightLeg: new BodyPart(320, 220, 10)
+  };
+
+  ragdolls.push(ragdoll);
+}
+
+function drawConnections(r) {
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 4;
+
+  function line(a, b) {
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+
+  line(r.head, r.body);
+  line(r.body, r.leftArm);
+  line(r.body, r.rightArm);
+  line(r.body, r.leftLeg);
+  line(r.body, r.rightLeg);
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ragdolls.forEach(r => {
+    Object.values(r).forEach(part => {
+      part.update();
+      part.draw();
+    });
+
+    drawConnections(r);
+  });
+
+  requestAnimationFrame(animate);
+}
+
+spawnRagdoll();
+animate();
+</script>
+
+</body>
+</html>
