@@ -1,26 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Game Collection</title>
+    <meta charset="UTF-8">
+    <title>My Arcade</title>
     <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; }
-        .game-link { 
-            display: inline-block; margin: 20px; padding: 20px; 
-            background: #333; border-radius: 10px; text-decoration: none; color: #ff2449;
-            transition: 0.3s; border: 2px solid transparent;
-        }
-        .game-link:hover { border-color: #ff2449; background: #444; }
+        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 900px; margin: auto; }
+        .card { background: #333; padding: 15px; border-radius: 10px; border-bottom: 4px solid #ff2449; transition: 0.3s; text-decoration: none; color: white; }
+        .card:hover { transform: translateY(-5px); background: #444; }
+        .btn { display: inline-block; margin-top: 10px; padding: 8px 15px; background: #ff2449; border: none; color: white; border-radius: 5px; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
-    <h1>🎮 My GitHub Games</h1>
-    <a href="game1/" class="game-link">
-        <h2>Clicker Game</h2>
-        <p>Play the test game!</p>
-    </a>
-    <a href="game2/" class="game-link">
-        <h2>New Game</h2>
-        <p>Coming soon...</p>
-    </a>
+    <h1>🕹️ My Game Collection</h1>
+    <div class="grid">
+        <!-- YOUR CUSTOM GAME 1 -->
+        <a href="clicker-game/" class="card">
+            <h3>Button Clicker</h3>
+            <p>Score as high as you can!</p>
+            <div class="btn">Play Now</div>
+        </a>
+
+        <!-- PEOPLE PLAYGROUND (External Link) -->
+        <div class="card">
+            <h3>People Playground</h3>
+            <p>External Web Port</p>
+            <!-- Launch Button with Fullscreen Trigger -->
+            <button class="btn" onclick="launchFullscreen('https://itch.io')">Play Fullscreen</button>
+        </div>
+    </div>
+
+    <script>
+        function launchFullscreen(url) {
+            // Opens game in new window and requests focus
+            let win = window.open(url, "_blank");
+            if (win) { 
+                win.focus(); 
+            } else {
+                alert("Please allow popups to open the game!");
+            }
+        }
+    </script>
 </body>
 </html>
