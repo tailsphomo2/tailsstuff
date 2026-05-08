@@ -9,36 +9,72 @@
     <style>
         :root { --neon: #00f2ff; --neon-dim: rgba(0, 242, 255, 0.2); --bg: #020205; --panel: rgba(10, 15, 25, 0.95); }
         body { background-color: var(--bg); color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        /* Sci-Fi Grid Background */
         .grid-bg { position: fixed; inset: 0; perspective: 600px; z-index: -1; }
         .grid-floor { position: absolute; width: 200%; height: 100%; top: 20%; left: -50%; background-image: linear-gradient(var(--neon-dim) 1px, transparent 1px), linear-gradient(90deg, var(--neon-dim) 1px, transparent 1px); background-size: 50px 50px; transform: rotateX(60deg); animation: moveGrid 4s linear infinite; }
         @keyframes moveGrid { from { transform: rotateX(60deg) translateY(0); } to { transform: rotateX(60deg) translateY(50px); } }
-        header { margin: 60px 0; text-align: center; }
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 3rem; color: var(--neon); animation: glitch 4s infinite; }
-        @keyframes glitch { 0%, 98%, 100% { transform: none; } 99% { transform: skew(5deg); text-shadow: 2px 0 red, -2px 0 blue; } }
-        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; width: 92%; max-width: 1300px; padding-bottom: 80px; }
-        .tile { position: relative; background: var(--panel); border: 1px solid var(--neon-dim); padding: 45px 20px; text-align: center; text-decoration: none; color: white; transition: 0.3s; clip-path: polygon(0 12%, 12% 0, 100% 0, 100% 88%, 88% 100%, 0 100%); cursor: pointer; }
-        .tile:hover { transform: translateY(-10px); border-color: var(--neon); box-shadow: 0 0 25px var(--neon-dim); }
-        .name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--neon); display: block; margin-top: 10px; }
         
-        /* Frame Player */
-        #player-frame { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
-        .close-btn { position: absolute; top: 15px; left: 15px; z-index: 1001; padding: 10px 20px; background: #111; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; }
+        header { margin: 60px 0; text-align: center; }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 3rem; color: var(--neon); animation: glitch 4s infinite; text-shadow: 0 0 10px var(--neon-dim); }
+        @keyframes glitch { 0%, 98%, 100% { transform: none; } 99% { transform: skew(5deg); text-shadow: 2px 0 red, -2px 0 blue; } }
 
-        /* --- SPARX MATHS PANIC --- */
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; 
+            width: 95%; 
+            max-width: 1400px; 
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .tile { 
+            position: relative; 
+            background: var(--panel); 
+            border: 1px solid var(--neon-dim); 
+            padding: 50px 20px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: white; 
+            transition: 0.3s; 
+            clip-path: polygon(0 15%, 12% 0, 100% 0, 100% 85%, 88% 100%, 0 100%); 
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile:hover { 
+            transform: translateY(-10px); 
+            border-color: var(--neon); 
+            box-shadow: 0 0 30px var(--neon-dim); 
+            background: rgba(0, 242, 255, 0.08);
+        }
+
+        .icon { font-size: 3.5rem; display: block; margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--neon-dim)); }
+        .name { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--neon); letter-spacing: 2px; }
+        .tag { font-size: 0.65rem; color: #555; margin-top: 10px; display: block; letter-spacing: 1px; font-weight: bold; }
+
+        /* The Frame Browser */
+        #player-frame { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
+        .close-btn { position: absolute; top: 15px; left: 15px; z-index: 1001; padding: 10px 20px; background: #111; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; font-size: 12px; }
+
+        /* --- SPARX MATHS 1:1 REPLICA PANIC --- */
         #panic-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 9999; flex-direction: column; font-family: sans-serif; }
         .sparx-header { background: #3c99f0; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 50px; font-weight: bold; }
         .sparx-tabs { display: flex; background: #ebf5ff; padding: 10px 10px 0; border-bottom: 1px solid #cce5ff; }
-        .tab { background: #4ade80; color: white; padding: 8px 15px; border-radius: 5px 5px 0 0; margin-right: 5px; font-size: 14px; }
+        .tab { background: #4ade80; color: white; padding: 8px 15px; border-radius: 5px 5px 0 0; margin-right: 5px; font-size: 14px; position: relative; }
         .tab.active { background: #f87171; } .tab::after { content: ' \2713'; } .tab.active::after { content: ' X'; }
         .sparx-body { padding: 40px; max-width: 700px; margin: 0 auto; text-align: center; color: #444; }
-        .q-text { font-size: 22px; line-height: 1.5; margin-bottom: 30px; }
+        .q-text { font-size: 20px; line-height: 1.6; margin-bottom: 30px; text-align: left; }
         .prime-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; }
-        .prime-card { background: #f1f3f5; padding: 15px; border-radius: 5px; font-size: 18px; border: 1px solid #dee2e6; }
+        .prime-card { background: #f1f3f5; padding: 15px; border-radius: 5px; font-size: 18px; border: 1px solid #dee2e6; font-weight: 500; }
     </style>
 </head>
 <body>
 
-    <!-- REPLICA SPARX QUESTION SCREEN -->
     <div id="panic-screen">
         <div class="sparx-header">
             <div style="font-size: 20px;">&lsaquo; &nbsp; Sparx Maths</div>
@@ -49,14 +85,14 @@
         </div>
         <div class="sparx-body">
             <div class="q-text">
-                a) Work out the prime factor decomposition of 396. Give your answer in index form.<br><br>
-                b) Use your answer to part a) to work out which <b>two</b> of these numbers are factors of 396.
+                <b>a)</b> Work out the prime factor decomposition of 396. Give your answer in index form.<br><br>
+                <b>b)</b> The prime factor decompositions of five numbers are shown below. Use your answer to part a) to work out which <b>two</b> of these numbers are factors of 396.
             </div>
             <div class="prime-cards">
                 <div class="prime-card">88 = 2³ × 11</div><div class="prime-card">14 = 2 × 7</div>
                 <div class="prime-card">121 = 11²</div><div class="prime-card">22 = 2 × 11</div>
             </div>
-            <div class="prime-card" style="margin-top: 15px; width: 100px; display: inline-block;">9 = 3²</div>
+            <div class="prime-card" style="margin-top: 15px; width: 120px; display: inline-block;">9 = 3²</div>
         </div>
     </div>
 
@@ -64,11 +100,11 @@
     <header><h1>tailsphomo's edu</h1></header>
 
     <main class="container">
-        <!-- LINK TO YOUR ITCH.IO IFRAME FOLDER -->
-        <div onclick="launch('RagdollPhysics/index.html')" class="tile">
-            <span class="icon">🕺</span>
-            <span class="name">RAGDOLL PHYSICS</span>
-            <span class="tag">EXTERNAL_LINK_ACTIVE</span>
+        <!-- LINK TO YOUR PeoplePlayground FOLDER -->
+        <div onclick="launch('PeoplePlayground/index.html')" class="tile">
+            <span class="icon">☣️</span>
+            <span class="name">PEOPLE PLAYGROUND</span>
+            <span class="tag">MAINFRAME_LINK_X</span>
         </div>
         
         <div onclick="launch('Web-Man/index.html')" class="tile">
@@ -79,13 +115,13 @@
             <span class="icon">🍪</span><span class="name">COOKIE CLICKER</span><span class="tag">DATA_COLLECT</span>
         </div>
         
-        <div onclick="launch('https://youtube-nocookie.com')" class="tile">
+        <div onclick="launch('youtube.html')" class="tile">
             <span class="icon">📺</span><span class="name">YOUTUBE</span><span class="tag">BYPASS_FEED</span>
         </div>
     </main>
 
     <div id="player-frame">
-        <button class="close-btn" onclick="closeFrame()">← DISCONNECT</button>
+        <button class="close-btn" onclick="closeFrame()">← DISCONNECT_MAINFRAME</button>
         <iframe id="game-view" style="width:100%; height:100%; border:none;" allow="autoplay; gamepad; fullscreen; keyboard"></iframe>
     </div>
 
@@ -99,8 +135,8 @@
             document.getElementById('game-view').src = '';
         }
 
-        // PANIC TRIGGER
         window.addEventListener('keydown', function(e) {
+            // PANIC KEY: ~ or ESC
             if (e.key === '`' || e.key === '~' || e.key === 'Escape') {
                 const panic = document.getElementById('panic-screen');
                 const title = document.getElementById('tab-title');
