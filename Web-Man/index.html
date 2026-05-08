@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web-Man</title>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: linear-gradient(skyblue, white);
+}
+
+#player {
+  width: 50px;
+  height: 50px;
+  background: red;
+  position: absolute;
+  border-radius: 50%;
+  top: 300px;
+  left: 100px;
+}
+</style>
+</head>
+<body>
+
+<div id="player"></div>
+
+<script>
+const player = document.getElementById('player');
+
+let x = 100;
+let y = 300;
+let velocityY = 0;
+let gravity = 0.5;
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    velocityY = -10;
+  }
+
+  if (e.code === 'ArrowRight') {
+    x += 20;
+  }
+
+  if (e.code === 'ArrowLeft') {
+    x -= 20;
+  }
+});
+
+function update() {
+  velocityY += gravity;
+  y += velocityY;
+
+  if (y > window.innerHeight - 50) {
+    y = window.innerHeight - 50;
+    velocityY = 0;
+  }
+
+  player.style.left = x + 'px';
+  player.style.top = y + 'px';
+
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+
+</body>
+</html>
