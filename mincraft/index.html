@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Minecraft Web</title>
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
-        iframe { width: 100vw; height: 100vh; border: none; }
-        .back-btn { 
-            position: absolute; top: 10px; left: 10px; padding: 10px; 
-            background: rgba(0,0,0,0.5); color: white; text-decoration: none; 
-            border-radius: 5px; font-family: sans-serif; z-index: 100;
-        }
-    </style>
+    <title>Eaglercraft 1.12.2</title>
+    <script type="text/javascript" src="classes.js"></script>
 </head>
-<body>
-    <a href="../" class="back-btn">← Back to Arcade</a>
-    <!-- This is a stable Eaglercraft 1.8.8 web client -->
-    <iframe src="https://eaglercraft.com" allowfullscreen></iframe>
+<body style="margin:0; background-color:black;">
+    <div id="game_frame"></div>
+    <script type="text/javascript">
+        window.eaglercraftXOpts = {
+            container: "game_frame",
+            assetsURI: "assets.epk",
+            worldsFolder: "MAIN",
+            servers: [
+                { addr: "wss://pattun.one", name: "Pattun.one" }
+            ]
+        };
+        // Initialization script usually goes here
+    </script>
 </body>
 </html>
