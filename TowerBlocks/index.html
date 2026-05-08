@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tower Blocks</title>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: skyblue;
+}
+
+#game {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.block {
+  position: absolute;
+  width: 120px;
+  height: 30px;
+  background: brown;
+}
+</style>
+</head>
+<body>
+
+<div id="game"></div>
+
+<script>
+const game = document.getElementById('game');
+
+let stackHeight = 0;
+let moving = true;
+let x = 0;
+let direction = 3;
+
+function createBlock() {
+  const block = document.createElement('div');
+  block.className = 'block';
+  block.style.bottom = stackHeight + 'px';
+  game.appendChild(block);
+
+  function move() {
+    if (!moving) return;
+
+    x += direction;
+
+    if (x > window.innerWidth - 120 || x < 0) {
+      direction *= -1;
+    }
+
+    block.style.left = x + 'px';
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+
+  window.onclick = () => {
+    moving = false;
+    stackHeight += 30;
+    moving = true;
+    createBlock();
+  };
+}
+
+createBlock();
+</script>
+
+</body>
+</html>
