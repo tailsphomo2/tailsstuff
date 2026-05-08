@@ -5,141 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>tailsphomo's games</title>
     <style>
-        body { background: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 50px 20px; }
-        .header-container { text-align: center; margin-bottom: 50px; }
-        h1 { font-size: 2.5rem; margin: 0; }
-        .discord-tag { color: #00ffd2; font-size: 1.1rem; margin-top: 10px; opacity: 0.8; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; }
-        .game-card { background: #1e1e1e; border-radius: 15px; padding: 30px; text-align: center; text-decoration: none; color: #fff; border: 1px solid #333; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .game-card:hover { transform: translateY(-10px); border-color: #00ffd2; box-shadow: 0 8px 25px rgba(0, 255, 210, 0.2); }
-        .emoji { font-size: 60px; display: block; margin-bottom: 15px; }
-        .game-title { font-weight: bold; font-size: 1.4rem; display: block; margin-bottom: 8px; }
-        .game-desc { font-size: 0.9rem; color: #aaa; }
+        :root {
+            --bg: #0b0b0e;
+            --accent: #00ffd2;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a5;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        header { margin-bottom: 40px; }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(to bottom, #fff 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .discord {
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin-top: 10px;
+            font-family: monospace;
+            border: 1px solid #2d2d33;
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        /* The Game Links Section */
+        .game-list {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .game-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: 0.3s;
+            opacity: 0.7;
+        }
+
+        .game-link:hover {
+            opacity: 1;
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .glow {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.1;
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
-    <div class="header-container">
+
+    <div class="glow"></div>
+
+    <header>
         <h1>tailsphomo's games</h1>
-        <div class="discord-tag">@tailsphomothesecond (discord)</div>
-    </div>
-    <div class="game-grid">
-        <a href="tetris.html" class="game-card">
-            <span class="emoji">🧱</span>
-            <span class="game-title">Tetris</span>
-            <p class="game-desc">Classic block-stacking puzzle.</p>
-        </a>
-        <a href="hoops.html" class="game-card">
-            <span class="emoji">🏀</span>
-            <span class="game-title">Hoops</span>
-            <p class="game-desc">Aim and shoot for high scores.</p>
-        </a>
-        <a href="playground.html" class="game-card">
-            <span class="emoji">🚶</span>
-            <span class="game-title">Ragdoll Sandbox</span>
-            <p class="game-desc">Physics fun with a ragdoll character.</p>
-        </a>
-    </div>
-</body>
-</html>
-        <!-- CHROME DINO (Local) -->
-        <a href="dino/" class="card">
-            <div class="preview">🦖</div>
-            <div class="info"><h3>Dino Run</h3><p>Classic offline desert runner.</p></div>
-        </a>
-<div style="width: 800px; height: 600px; margin: auto; border: 5px solid #333;">
-    <iframe 
-        src="https://github.io" 
-        style="width: 100%; height: 100%; border: none;"
-        allow="autoplay; fullscreen; keyboard"
-        sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts"
-        allowfullscreen>
-    </iframe>
-</div>
+        <div class="discord">@tailsphomothesecond (discord)</div>
+    </header>
 
-        <!DOCTYPE html>
-<html>
-<head>
-    <title>TailsPhomo's Games</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #121212; color: white; }
-        .menu-item { display: block; margin: 20px; padding: 15px; background: #333; color: cyan; text-decoration: none; border-radius: 8px; }
-        .menu-item:hover { background: #444; }
-    </style>
-</head>
-<body>
-    <h1>TailsPhomo's Games</h1>
-    <!-- Link to the Tetris folder -->
-    <a href="./tetris/index.html" class="menu-item">Play Tetris</a>
-    <!-- Link to the Hoops folder -->
-    <a href="./hoops/index.html" class="menu-item">Play Hoops</a>
-</body>
-</html>
+    <nav class="game-list">
+        <!-- These links point to your new folders -->
+        <a href="./webman/" class="game-link">🕸️ Web-Man</a>
+        <a href="./playground/" class="game-link">🚶 Ragdoll Sandbox</a>
+        <a href="./tower/" class="game-link">🏗️ Tower Blocks</a>
+        <a href="./cookie/" class="game-link">🍪 Cookie Clicker</a>
+    </nav>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ragdoll Sandbox</title>
-    <style>
-        body { background: #222; color: white; text-align: center; font-family: sans-serif; margin: 0; overflow: hidden; }
-        canvas { background: #333; border-bottom: 10px solid #555; cursor: grab; }
-        .ui { position: absolute; top: 10px; width: 100%; pointer-events: none; }
-    </style>
-</head>
-<body>
-    <div class="ui">Click and Drag the Ragdoll!</div>
-    <canvas id="canvas"></canvas>
-
-<script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let gravity = 0.5, friction = 0.98, bounce = 0.7;
-let points = [], sticks = [], mouse = { x: 0, y: 0, down: false, target: null };
-
-function addPoint(x, y, vx, vy) { points.push({ x, y, oldX: x - vx, oldY: y - vy }); }
-function addStick(p1, p2, dist) { sticks.push({ p1: points[p1], p2: points[p2], dist }); }
-
-// Create Ragdoll
-addPoint(200, 100, 0, 0); // 0: Head
-addPoint(200, 150, 0, 0); // 1: Chest
-addPoint(170, 150, 0, 0); // 2: L-Shoulder
-addPoint(230, 150, 0, 0); // 3: R-Shoulder
-addPoint(160, 200, 0, 0); // 4: L-Hand
-addPoint(240, 200, 0, 0); // 5: R-Hand
-addPoint(180, 250, 0, 0); // 6: L-Foot
-addPoint(220, 250, 0, 0); // 7: R-Foot
-
-addStick(0, 1, 50); addStick(1, 2, 30); addStick(1, 3, 30);
-addStick(2, 4, 50); addStick(3, 5, 50); addStick(1, 6, 100); addStick(1, 7, 100);
-
-function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    points.forEach(p => {
-        if (mouse.down && mouse.target === p) { p.x = mouse.x; p.y = mouse.y; }
-        let vx = (p.x - p.oldX) * friction, vy = (p.y - p.oldY) * friction;
-        p.oldX = p.x; p.oldY = p.y;
-        p.x += vx; p.y += vy + gravity;
-        if (p.y > canvas.height) { p.y = canvas.height; p.oldY = p.y + vy * bounce; }
-    });
-    for(let i=0; i<5; i++) sticks.forEach(s => {
-        let dx = s.p2.x - s.p1.x, dy = s.p2.y - s.p1.y;
-        let dist = Math.sqrt(dx*dx + dy*dy), diff = (s.dist - dist) / dist * 0.5;
-        s.p1.x -= dx * diff; s.p1.y -= dy * diff; s.p2.x += dx * diff; s.p2.y += dy * diff;
-    });
-    ctx.strokeStyle = "white"; ctx.lineWidth = 4;
-    sticks.forEach(s => { ctx.beginPath(); ctx.moveTo(s.p1.x, s.p1.y); ctx.lineTo(s.p2.x, s.p2.y); ctx.stroke(); });
-    requestAnimationFrame(update);
-}
-
-window.onmousedown = (e) => { 
-    mouse.down = true; 
-    points.forEach(p => { if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 20) mouse.target = p; });
-};
-window.onmouseup = () => { mouse.down = false; mouse.target = null; };
-window.onmousemove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-update();
-</script>
 </body>
 </html>
