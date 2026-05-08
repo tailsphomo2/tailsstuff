@@ -1,129 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web Playground</title>
+    <title>Advanced Web Playground</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #0a0a0a; color: #555; font-family: 'Courier New', Courier, monospace; }
-        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; text-transform: uppercase; letter-spacing: 1px; }
-        canvas { display: block; cursor: crosshair; }
-        .key { color: #f00; font-weight: bold; }
+        body { margin: 0; overflow: hidden; background: #080808; color: #666; font-family: sans-serif; user-select: none; }
+        #ui { position: absolute; top: 15px; left: 15px; pointer-events: none; }
+        .key { color: #0cf; font-weight: bold; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
     <div id="ui">
-        <h2>Web Playground v2.0</h2>
-        [DRAG] MOVE | <span class="key">S</span> SLOW-MO | <span class="key">G</span> GUN | <span class="key">K</span> KNIFE | <span class="key">P</span> SPAWN | <span class="key">R</span> CLEAR
+        <h2 style="color: #eee; margin:0;">PHYSICS LAB</h2>
+        [DRAG] Interaction | <span class="key">1</span> SPAWN GUN | <span class="key">2</span> SPAWN KNIFE<br>
+        <span class="key">F</span> USE HELD ITEM | <span class="key">P</span> SPAWN PERSON | <span class="key">R</span> RESET
     </div>
     <canvas id="c"></canvas>
 
 <script>
 const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
-let w, h, mouse = {x:0, y:0, down:false, target:null}, slowMo = false, timeScale = 1;
-const gravity = 0.45, friction = 0.985, bounce = 0.3;
-let entities = [], bloodSplatters = [];
+let w, h, mouse = {x:0, y:0, down:false, target:null, heldItem:null};
+const gravity = 0.5, friction = 0.98, standStrength = 0.15;
+let people = [], items = [], blood = [];
 
 class Point {
-    constructor(x, y, parent=null) { this.x=this.oldX=x; this.y=this.oldY=y; this.parent=parent; this.active=true; }
+    constructor(x, y, radius=5) { this.x=this.oldX=x; this.y=this.oldY=y; this.radius=radius; this.active=true; }
     update() {
-        if(!this.active) return;
-        let ts = slowMo ? 0.2 : 1;
         let vx = (this.x - this.oldX) * friction, vy = (this.y - this.oldY) * friction;
         this.oldX = this.x; this.oldY = this.y;
-        this.x += vx * ts; this.y += (vy + gravity) * ts;
-        if(this.y > h-20) { this.y = h-20; this.oldY = this.y + vy * bounce; if(Math.abs(vy) > 5) spawnBlood(this.x, h-20, 2); }
-        if(this.x < 20 || this.x > w-20) { this.x = Math.max(20, Math.min(w-20, this.x)); this.oldX = this.x + vx * bounce; }
+        this.x += vx; this.y += vy + gravity;
+        if(this.y > h-25) { this.y = h-25; this.oldY = this.y + vy * 0.3; }
+        if(this.x < 25 || this.x > w-25) { this.x = Math.max(25, Math.min(w-25, this.x)); this.oldX = this.x + vx * 0.3; }
     }
 }
 
 class Stick {
-    constructor(p1, p2, len, type='bone') { this.p1=p1; this.p2=p2; this.len=len; this.active=true; this.type=type; }
+    constructor(p1, p2, len, thick=10) { this.p1=p1; this.p2=p2; this.len=len; this.thick=thick; this.active=true; }
     update() {
-        if(!this.active || !this.p1.active || !this.p2.active) return;
         let dx = this.p2.x - this.p1.x, dy = this.p2.y - this.p1.y;
-        let dist = Math.sqrt(dx*dx + dy*dy), diff = (this.len - dist) / dist * 0.7;
-        // Dismemberment check
-        if(dist > this.len * 2.5) { this.active = false; spawnBlood(this.p1.x, this.p1.y, 10); return; }
+        let dist = Math.sqrt(dx*dx + dy*dy), diff = (this.len - dist) / dist * 0.5;
         this.p1.x -= dx * diff; this.p1.y -= dy * diff;
         this.p2.x += dx * diff; this.p2.y += dy * diff;
     }
-}
-
-function spawnRagdoll(x, y) {
-    let p = [
-        new Point(x, y-80), new Point(x, y-50), new Point(x, y-10), // Head, Torso, Hips
-        new Point(x-25, y-50), new Point(x+25, y-50), // Shoulders
-        new Point(x-35, y-20), new Point(x+35, y-20), // Hands
-        new Point(x-15, y+30), new Point(x+15, y+30)  // Feet
-    ];
-    let s = [
-        new Stick(p[0],p[1],30), new Stick(p[1],p[2],40), // Spine
-        new Stick(p[1],p[3],25), new Stick(p[1],p[4],25), // Arms
-        new Stick(p[3],p[5],35), new Stick(p[4],p[6],35),
-        new Stick(p[2],p[7],45), new Stick(p[2],p[8],45)  // Legs
-    ];
-    entities.push({p, s});
-}
-
-function spawnBlood(x, y, count=5) {
-    for(let i=0; i<count; i++) {
-        bloodSplatters.push({x, y, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12, life: 100});
+    draw() {
+        if(!this.active) return;
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = this.thick; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(this.p1.x, this.p1.y); ctx.lineTo(this.p2.x, this.p2.y); ctx.stroke();
     }
 }
 
+function spawnPerson(x, y) {
+    let p = [
+        new Point(x, y-110, 15), // 0: Head
+        new Point(x, y-80),      // 1: Neck
+        new Point(x, y-40),      // 2: Hips
+        new Point(x-20, y-75),   // 3: L-Shoulder
+        new Point(x+20, y-75),   // 4: R-Shoulder
+        new Point(x-25, y-40),   // 5: L-Hand
+        new Point(x+25, y-40),   // 6: R-Hand
+        new Point(x-15, y),      // 7: L-Foot
+        new Point(x+15, y)       // 8: R-Foot
+    ];
+    let s = [
+        new Stick(p,p,30, 20), new Stick(p,p,45, 25), // Body
+        new Stick(p,p,40, 12), new Stick(p,p,40, 12), // Arms
+        new Stick(p,p,45, 15), new Stick(p,p,45, 15), // Legs
+        new Stick(p,p,15, 10), new Stick(p,p,15, 10)  // Shoulders
+    ];
+    people.push({p, s, standing: true});
+}
+
+function spawnWeapon(type, x, y) {
+    let p1 = new Point(x, y), p2 = new Point(x+30, y);
+    items.push({p1, p2, type, active: true});
+}
+
+function spawnBlood(x, y) {
+    for(let i=0; i<10; i++) blood.push({x, y, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, life:60});
+}
+
 function loop() {
-    ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h);
-    // Draw Environment
-    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, h-20, w, 20); // Ground
-    
-    // Process Entities
-    entities.forEach(ent => {
-        ent.p.forEach(pt => pt.update());
-        for(let i=0; i<8; i++) ent.s.forEach(st => st.update());
-        
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 4;
-        ent.s.forEach(st => {
-            if(st.active) {
-                ctx.beginPath(); ctx.moveTo(st.p1.x, st.p1.y); ctx.lineTo(st.p2.x, st.p2.y); ctx.stroke();
-            }
-        });
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ent.p[0].x, ent.p[0].y, 8, 0, 7); ctx.fill();
+    ctx.fillStyle = '#080808'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = '#111'; ctx.fillRect(0, h-25, w, 25); // Floor
+
+    people.forEach(person => {
+        // Active Standing Logic
+        if(person.standing) {
+            person.p[0].vy -= standStrength; // Pull head up
+            let dx = person.p[0].x - person.p[2].x;
+            person.p[2].vx += dx * 0.01; // Balance hips
+        }
+        person.p.forEach(pt => pt.update());
+        for(let i=0; i<10; i++) person.s.forEach(st => st.update());
+        person.s.forEach(st => st.draw());
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(person.p.x, person.p.y, 15, 0, 7); ctx.fill();
     });
 
-    // Blood Particles
-    bloodSplatters.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy; b.vy += gravity * 0.5; b.life--;
-        ctx.fillStyle = `rgba(200, 0, 0, ${b.life/100})`; ctx.fillRect(b.x, b.y, 3, 3);
-        if(b.y > h-20) { b.vx *= 0.5; b.vy = 0; b.y = h-20; }
-        if(b.life <= 0) bloodSplatters.splice(i, 1);
+    items.forEach(item => {
+        item.p1.update(); item.p2.update();
+        let dx = item.p2.x - item.p1.x, dy = item.p2.y - item.p1.y;
+        let dist = Math.sqrt(dx*dx + dy*dy), diff = (30 - dist) / dist * 0.5;
+        item.p1.x -= dx * diff; item.p1.y -= dy * diff;
+        item.p2.x += dx * diff; item.p2.y += dy * diff;
+
+        ctx.strokeStyle = item.type === 'gun' ? '#444' : '#888';
+        ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(item.p1.x, item.p1.y); ctx.lineTo(item.p2.x, item.p2.y); ctx.stroke();
+    });
+
+    blood.forEach((b, i) => {
+        b.x += b.vx; b.y += b.vy; b.vy += 0.3; b.life--;
+        ctx.fillStyle = `rgba(200,0,0,${b.life/60})`; ctx.fillRect(b.x, b.y, 3, 3);
+        if(b.life <= 0) blood.splice(i, 1);
     });
 
     if(mouse.down && mouse.target) { mouse.target.x = mouse.x; mouse.target.y = mouse.y; }
     requestAnimationFrame(loop);
 }
 
-// Input Logic
 window.onkeydown = (e) => {
-    if(e.key === 's') slowMo = !slowMo;
-    if(e.key === 'g') { // Shooting logic
-        entities.forEach(ent => {
-            let target = ent.p[Math.floor(Math.random()*ent.p.length)];
-            target.oldX -= 50; spawnBlood(target.x, target.y, 15);
-        });
+    if(e.key === '1') spawnWeapon('gun', mouse.x, mouse.y);
+    if(e.key === '2') spawnWeapon('knife', mouse.x, mouse.y);
+    if(e.key === 'p') spawnPerson(mouse.x, mouse.y);
+    if(e.key === 'r') { people=[]; items=[]; blood=[]; }
+    if(e.key === 'f' && mouse.heldItem) {
+        if(mouse.heldItem.type === 'gun') {
+            spawnBlood(mouse.heldItem.p2.x + 100, mouse.heldItem.p2.y); // Fake projectile
+            mouse.heldItem.p1.x -= 20; // Recoil
+        } else {
+            mouse.heldItem.p2.x += 40; // Knife thrust
+        }
     }
-    if(e.key === 'p') spawnRagdoll(mouse.x, mouse.y);
-    if(e.key === 'r') { entities = []; bloodSplatters = []; }
 };
 
 window.onmousedown = (e) => {
     mouse.down = true;
-    entities.forEach(ent => ent.p.forEach(p => {
-        if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 20) mouse.target = p;
-    }));
+    [...people.flatMap(p => p.p), ...items.flatMap(i => [i.p1, i.p2])].forEach(p => {
+        if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 30) {
+            mouse.target = p;
+            items.forEach(it => { if(it.p1 === p || it.p2 === p) mouse.heldItem = it; });
+        }
+    });
 };
 window.onmouseup = () => { mouse.down = false; mouse.target = null; };
 window.onmousemove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
 window.onresize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
-window.onresize(); spawnRagdoll(w/2, h/2); loop();
+window.onresize(); spawnPerson(w/2, h/2); loop();
 </script>
 </body>
 </html>
