@@ -1,98 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web Playground Pro</title>
+    <title>PPG Ultimate Sandbox</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #0a0a0a; color: #555; font-family: monospace; user-select: none; }
-        #ui { position: absolute; top: 15px; left: 15px; pointer-events: none; border-left: 2px solid #333; padding-left: 15px; }
-        .key { color: #f00; font-weight: bold; }
+        body { margin: 0; overflow: hidden; background: #050505; color: #555; font-family: monospace; user-select: none; }
+        #ui { position: absolute; top: 15px; left: 15px; pointer-events: none; border-left: 4px solid #f00; padding-left: 15px; z-index: 10; }
+        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 100; }
+        .key { color: #0cf; font-weight: bold; }
         canvas { display: block; }
     </style>
 </head>
 <body>
+    <div id="overlay" onclick="boot()"><h1>INITIALIZE LAB</h1></div>
     <div id="ui">
-        <h2 style="color: #eee;">PPG SANDBOX</h2>
-        [DRAG] Interaction | <span class="key">A / D</span> ROTATE HELD ITEM<br>
-        <span class="key">1</span> GUN | <span class="key">2</span> KNIFE | <span class="key">P</span> PERSON<br>
-        <span class="key">F</span> USE ITEM | <span class="key">R</span> CLEAR
+        <h2 style="color: #eee;">PPG WEAPONS LAB</h2>
+        [S] <span class="key">SLOW-MO</span> | [WHEEL] <span class="key">ZOOM</span><br>
+        [1] PISTOL | [2] KNIFE | [3] <span class="key">TNT</span><br>
+        [P] SPAWN PERSON | [F] USE HELD ITEM
     </div>
     <canvas id="c"></canvas>
 
 <script>
 const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
 let w, h, mouse = {x:0, y:0, down:false, target:null, held:null};
-const gravity = 0.5, friction = 0.98;
+let audio, zoom = 1.0, slowMo = false;
+const gravity = 0.5, friction = 0.985;
 let people = [], items = [], blood = [];
 
+function boot() {
+    audio = new (window.AudioContext || window.webkitAudioContext)();
+    document.getElementById('overlay').style.display = 'none';
+}
+
+function sfx(type) {
+    if(!audio) return;
+    let o = audio.createOscillator(), g = audio.createGain();
+    o.connect(g); g.connect(audio.destination);
+    if(type==='gun'){ o.type='square'; o.frequency.setValueAtTime(100, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audio.currentTime+0.1); }
+    if(type==='boom'){ o.frequency.setValueAtTime(60, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audio.currentTime+0.5); }
+    o.start(); o.stop(audio.currentTime+0.5);
+}
+
 class Point {
-    constructor(x, y) { this.x = this.oldX = x; this.y = this.oldY = y; }
+    constructor(x, y) { this.x = this.oldX = x; this.y = this.oldY = y; this.active = true; }
     update() {
+        if(!this.active) return;
+        let ts = slowMo ? 0.2 : 1.0;
         let vx = (this.x - this.oldX) * friction, vy = (this.y - this.oldY) * friction;
         this.oldX = this.x; this.oldY = this.y;
-        this.x += vx; this.y += vy + gravity;
-        if(this.y > h-25) { this.y = h-25; this.oldY = this.y + vy * 0.3; }
-        if(this.x < 25 || this.x > w-25) { this.x = Math.max(25, Math.min(w-25, this.x)); this.oldX = this.x + vx * 0.3; }
+        this.x += vx * ts; this.y += (vy + gravity) * ts;
+        if(this.y > h-25) { this.y = h-25; this.oldY = this.y + vy * 0.4; }
+        if(this.x < 25 || this.x > w-25) { this.x = Math.max(25, Math.min(w-25, this.x)); this.oldX = this.x + vx * 0.4; }
     }
 }
 
 class Stick {
-    constructor(p1, p2, len, thick=12) { this.p1=p1; this.p2=p2; this.len=len; this.thick=thick; }
+    constructor(p1, p2, len, thick=15) { this.p1=p1; this.p2=p2; this.len=len; this.thick=thick; }
     update() {
         let dx = this.p2.x - this.p1.x, dy = this.p2.y - this.p1.y;
         let dist = Math.sqrt(dx*dx + dy*dy), diff = (this.len - dist) / dist * 0.5;
-        this.p1.x -= dx * diff; this.p1.y -= dy * diff;
-        this.p2.x += dx * diff; this.p2.y += dy * diff;
-    }
-    draw() {
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = this.thick; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(this.p1.x, this.p1.y); ctx.lineTo(this.p2.x, this.p2.y); ctx.stroke();
+        this.p1.x -= dx * diff; this.p1.y -= dy * diff; this.p2.x += dx * diff; this.p2.y += dy * diff;
     }
 }
 
 function spawnPerson(x, y) {
-    let p = [new Point(x, y-100), new Point(x, y-70), new Point(x, y-30), new Point(x-20, y-60), new Point(x+20, y-60), new Point(x-25, y-20), new Point(x+25, y-20), new Point(x-15, y+20), new Point(x+15, y+20)];
-    let s = [new Stick(p[0], p[1], 25, 20), new Stick(p[1], p[2], 40, 25), new Stick(p[1], p[3], 20), new Stick(p[1], p[4], 20), new Stick(p[3], p[5], 35), new Stick(p[4], p[6], 35), new Stick(p[2], p[7], 45), new Stick(p[2], p[8], 45)];
+    let p = [new Point(x,y-100), new Point(x,y-70), new Point(x,y-30), new Point(x-20,y-65), new Point(x+20,y-65), new Point(x-35,y-20), new Point(x+35,y-20), new Point(x-15,y+25), new Point(x+15,y+25)];
+    let s = [new Stick(p[0],p[1],25,20), new Stick(p[1],p[2],45,25), new Stick(p[1],p[3],20,12), new Stick(p[1],p[4],20,12), new Stick(p[3],p[5],40,14), new Stick(p[4],p[6],40,14), new Stick(p[2],p[7],55,18), new Stick(p[2],p[8],55,18)];
     people.push({p, s});
 }
 
-function spawnWeapon(type, x, y) {
-    let p1 = new Point(x, y), p2 = new Point(x+40, y);
-    items.push({p1, p2, type, angle: 0});
-}
-
 function loop() {
-    ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h);
-    ctx.fillStyle = '#151515'; ctx.fillRect(0, h-25, w, 25);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = '#050505'; ctx.fillRect(0,0,w,h);
+    ctx.translate(mouse.x, mouse.y); ctx.scale(zoom, zoom); ctx.translate(-mouse.x, -mouse.y);
+    ctx.fillStyle = '#111'; ctx.fillRect(0, h-25, w, 25);
 
-    people.forEach(person => {
-        person.p.forEach(pt => pt.update());
-        for(let i=0; i<10; i++) person.s.forEach(st => st.update());
-        person.s.forEach(st => st.draw());
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(person.p[0].x, person.p[0].y, 14, 0, 7); ctx.fill();
+    people.forEach(per => {
+        per.p.forEach(pt => pt.update());
+        for(let i=0; i<10; i++) per.s.forEach(st => st.update());
+        per.s.forEach(st => { ctx.strokeStyle='#fff'; ctx.lineWidth=st.thick; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(st.p1.x, st.p1.y); ctx.lineTo(st.p2.x, st.p2.y); ctx.stroke(); });
+        ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(per.p[0].x, per.p[0].y, 16, 0, 7); ctx.fill();
     });
 
     items.forEach(it => {
         it.p1.update(); it.p2.update();
-        let dx = it.p2.x - it.p1.x, dy = it.p2.y - it.p1.y;
-        let dist = Math.sqrt(dx*dx + dy*dy), diff = (40 - dist) / dist * 0.5;
-        it.p1.x -= dx * diff; it.p1.y -= dy * diff; it.p2.x += dx * diff; it.p2.y += dy * diff;
-
-        ctx.save();
-        ctx.translate(it.p1.x, it.p1.y);
-        ctx.rotate(Math.atan2(it.p2.y - it.p1.y, it.p2.x - it.p1.x));
-        if(it.type === 'gun') {
-            ctx.fillStyle = '#333'; ctx.fillRect(0, -5, 40, 10); // Barrel
-            ctx.fillRect(0, -5, 10, 20); // Grip
-        } else {
-            ctx.fillStyle = '#777'; ctx.fillRect(10, -3, 35, 6); // Blade
-            ctx.fillStyle = '#422'; ctx.fillRect(0, -5, 12, 10); // Handle
-        }
+        ctx.save(); ctx.translate(it.p1.x, it.p1.y); ctx.rotate(Math.atan2(it.p2.y-it.p1.y, it.p2.x-it.p1.x));
+        if(it.type==='pistol'){ ctx.fillStyle='#444'; ctx.fillRect(0,-5,45,12); ctx.fillStyle='#222'; ctx.fillRect(0,0,10,20); }
+        else if(it.type==='knife'){ ctx.fillStyle='#999'; ctx.fillRect(10,-3,35,6); ctx.fillStyle='#321'; ctx.fillRect(0,-6,12,12); }
+        else if(it.type==='tnt'){ ctx.fillStyle='#f00'; ctx.fillRect(0,-10,40,20); ctx.fillStyle='#fff'; ctx.fillText("TNT", 10, 5); }
         ctx.restore();
     });
 
     blood.forEach((b, i) => {
         b.x += b.vx; b.y += b.vy; b.vy += 0.2; b.life--;
-        ctx.fillStyle = `rgba(180,0,0,${b.life/50})`; ctx.fillRect(b.x, b.y, 3, 3);
+        ctx.fillStyle = `rgba(180,0,0,${b.life/50})`; ctx.fillRect(b.x, b.y, 4, 4);
         if(b.life <= 0) blood.splice(i, 1);
     });
 
@@ -100,36 +101,32 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+window.onwheel = (e) => { zoom = Math.max(0.5, Math.min(3, zoom - e.deltaY * 0.001)); };
 window.onkeydown = (e) => {
     let k = e.key.toLowerCase();
-    if(k === '1') spawnWeapon('gun', mouse.x, mouse.y);
-    if(k === '2') spawnWeapon('knife', mouse.x, mouse.y);
-    if(k === 'p') spawnPerson(mouse.x, mouse.y);
-    if(k === 'r') { people = []; items = []; blood = []; }
-    if(mouse.held) {
-        if(k === 'a') { mouse.held.p2.x -= 10; mouse.held.p2.y -= 10; }
-        if(k === 'd') { mouse.held.p2.x += 10; mouse.held.p2.y += 10; }
-        if(k === 'f') {
-            if(mouse.held.type === 'gun') {
-                mouse.held.p1.x -= 20; // Recoil
-                for(let i=0; i<15; i++) blood.push({x:mouse.held.p2.x+Math.random()*200, y:mouse.held.p2.y+(Math.random()-0.5)*50, vx:0, vy:0, life:30});
-            } else { mouse.held.p2.x += 50; } // Thrust
-        }
+    if(k==='p') spawnPerson(mouse.x, mouse.y);
+    if(k==='1') items.push({p1: new Point(mouse.x, mouse.y), p2: new Point(mouse.x+45, mouse.y), type:'pistol'});
+    if(k==='2') items.push({p1: new Point(mouse.x, mouse.y), p2: new Point(mouse.x+45, mouse.y), type:'knife'});
+    if(k==='3') items.push({p1: new Point(mouse.x, mouse.y), p2: new Point(mouse.x+40, mouse.y), type:'tnt'});
+    if(k==='s') slowMo = !slowMo;
+    if(k==='r') { people=[]; items=[]; blood=[]; }
+    if(mouse.held && k==='f') {
+        if(mouse.held.type==='pistol'){ sfx('gun'); mouse.held.p1.x-=40; for(let i=0; i<15; i++) blood.push({x:mouse.held.p2.x+Math.random()*150, y:mouse.held.p2.y, vx:0, vy:0, life:40}); }
+        else if(mouse.held.type==='knife'){ mouse.held.p2.x+=60; }
+        else if(mouse.held.type==='tnt'){ sfx('boom'); for(let i=0; i<50; i++) blood.push({x:mouse.held.p1.x, y:mouse.held.p1.y, vx:(Math.random()-0.5)*20, vy:(Math.random()-0.5)*20, life:60}); items.splice(items.indexOf(mouse.held),1); mouse.held=null; }
     }
+    if(mouse.held && k==='a') { mouse.held.p2.x-=30; mouse.held.p2.y-=30; }
+    if(mouse.held && k==='d') { mouse.held.p2.x+=30; mouse.held.p2.y+=30; }
 };
 
 window.onmousedown = (e) => {
     mouse.down = true;
-    [...people.flatMap(p => p.p), ...items.flatMap(i => [i.p1, i.p2])].forEach(p => {
-        if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 30) {
-            mouse.target = p;
-            items.forEach(it => { if(it.p1 === p || it.p2 === p) mouse.held = it; });
-        }
-    });
+    let pts = [...people.flatMap(p => p.p), ...items.flatMap(i => [i.p1, i.p2])];
+    pts.forEach(p => { if(Math.hypot(p.x-e.clientX, p.y-e.clientY) < 40) { mouse.target = p; items.forEach(it => { if(it.p1===p || it.p2===p) mouse.held=it; }); } });
 };
-window.onmouseup = () => { mouse.down = false; mouse.target = null; };
-window.onmousemove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-window.onresize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+window.onmouseup = () => { mouse.down=false; mouse.target=null; };
+window.onmousemove = (e) => { mouse.x=e.clientX; mouse.y=e.clientY; };
+window.onresize = () => { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; };
 window.onresize(); spawnPerson(w/2, h/2); loop();
 </script>
 </body>
