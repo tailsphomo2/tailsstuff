@@ -7,105 +7,79 @@
     <link id="tab-icon" rel="icon" href="https://google.com">
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        :root {
-            --neon: #00f2ff;
-            --neon-dim: rgba(0, 242, 255, 0.2);
-            --bg: #020205;
-            --panel: rgba(10, 15, 25, 0.95);
-        }
-
+        :root { --neon: #00f2ff; --neon-dim: rgba(0, 242, 255, 0.2); --bg: #020205; --panel: rgba(10, 15, 25, 0.95); }
         body { background-color: var(--bg); color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-
-        /* Sci-Fi Background */
-        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; perspective: 600px; z-index: -1; }
+        .grid-bg { position: fixed; inset: 0; perspective: 600px; z-index: -1; }
         .grid-floor { position: absolute; width: 200%; height: 100%; top: 20%; left: -50%; background-image: linear-gradient(var(--neon-dim) 1px, transparent 1px), linear-gradient(90deg, var(--neon-dim) 1px, transparent 1px); background-size: 50px 50px; transform: rotateX(60deg); animation: moveGrid 4s linear infinite; }
         @keyframes moveGrid { from { transform: rotateX(60deg) translateY(0); } to { transform: rotateX(60deg) translateY(50px); } }
-
         header { margin: 60px 0; text-align: center; }
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 3.2rem; letter-spacing: 5px; color: var(--neon); animation: glitch 4s infinite; }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 3rem; color: var(--neon); animation: glitch 4s infinite; }
         @keyframes glitch { 0%, 98%, 100% { transform: none; } 99% { transform: skew(5deg); text-shadow: 2px 0 red, -2px 0 blue; } }
-
         .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; width: 92%; max-width: 1300px; padding-bottom: 80px; }
-        .tile { position: relative; background: var(--panel); border: 1px solid var(--neon-dim); padding: 40px 20px; text-align: center; text-decoration: none; color: white; transition: 0.3s; clip-path: polygon(0 12%, 12% 0, 100% 0, 100% 88%, 88% 100%, 0 100%); cursor: pointer; }
+        .tile { position: relative; background: var(--panel); border: 1px solid var(--neon-dim); padding: 45px 20px; text-align: center; text-decoration: none; color: white; transition: 0.3s; clip-path: polygon(0 12%, 12% 0, 100% 0, 100% 88%, 88% 100%, 0 100%); cursor: pointer; }
         .tile:hover { transform: translateY(-10px); border-color: var(--neon); box-shadow: 0 0 25px var(--neon-dim); }
-        .icon { font-size: 2.8rem; display: block; margin-bottom: 15px; }
-        .name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--neon); }
-        .tag { font-size: 0.7rem; color: #555; margin-top: 12px; display: block; }
-
-        /* The Internal Player */
+        .name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--neon); display: block; margin-top: 10px; }
         #player-frame { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
-        .close-btn { position: absolute; top: 15px; left: 15px; z-index: 1001; padding: 10px 20px; background: #111; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; }
+        .close-btn { position: absolute; top: 15px; left: 15px; z-index: 1001; padding: 10px 20px; background: #111; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; }
 
-        /* --- SPARX MATHS PANIC SCREEN --- */
-        #panic-screen {
-            display: none; position: fixed; inset: 0; background: #f8f9fa; z-index: 9999;
-            flex-direction: column; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #212529;
-        }
-        .sparx-nav { background: #ffffff; height: 60px; display: flex; align-items: center; padding: 0 40px; border-bottom: 2px solid #e9ecef; justify-content: space-between; }
-        .sparx-content { padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; }
-        .question-card { background: white; padding: 30px; border-radius: 8px; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .orange-btn { background: #f26f21; color: white; border: none; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .bookwork-code { background: #e9ecef; padding: 5px 10px; border-radius: 4px; font-weight: bold; color: #495057; font-size: 14px; }
+        /* --- SPARX MATHS 1:1 REPLICA --- */
+        #panic-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 9999; flex-direction: column; font-family: sans-serif; }
+        .sparx-header { background: #3c99f0; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 50px; font-weight: bold; }
+        .sparx-tabs { display: flex; background: #ebf5ff; padding: 10px 10px 0; border-bottom: 1px solid #cce5ff; }
+        .tab { background: #4ade80; color: white; padding: 8px 15px; border-radius: 5px 5px 0 0; margin-right: 5px; font-size: 14px; position: relative; }
+        .tab.active { background: #f87171; } .tab::after { content: ' \2713'; } .tab.active::after { content: ' X'; }
+        .sparx-body { padding: 40px; max-width: 700px; margin: 0 auto; text-align: center; color: #444; }
+        .q-text { font-size: 22px; line-height: 1.5; margin-bottom: 30px; }
+        .prime-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; }
+        .prime-card { background: #f1f3f5; padding: 15px; border-radius: 5px; font-size: 18px; border: 1px solid #dee2e6; }
     </style>
 </head>
 <body>
 
-    <!-- PANIC SCREEN: SPARX MATHS QUESTION -->
     <div id="panic-screen">
-        <div class="sparx-nav">
-            <div style="color: #f26f21; font-weight: bold; font-size: 24px;">Sparx Maths</div>
-            <div style="font-size: 14px; color: #6c757d;">Noah H • Compulsory</div>
+        <div class="sparx-header">
+            <div style="font-size: 20px;">&lsaquo; &nbsp; Sparx Maths</div>
+            <div>19299 XP &nbsp; &#9776;</div>
         </div>
-        <div class="sparx-content">
-            <div style="margin-bottom: 20px;"><span class="bookwork-code">Bookwork code: 2A</span></div>
-            <div class="question-card">
-                <h3>Question</h3>
-                <p>Calculate the area of a rectangle with a length of 8cm and a width of 5cm.</p>
-                <div style="background: #f1f3f5; width: 200px; height: 120px; margin: 20px 0; border: 1px solid #ced4da; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #adb5bd;">[Diagram: Rectangle 8x5]</div>
-                <input type="text" placeholder="Your answer..." style="width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 4px;">
-                <br>
-                <button class="orange-btn">Submit answer</button>
+        <div class="sparx-tabs">
+            <div class="tab">6D</div><div class="tab">6E</div><div class="tab">6F</div><div class="tab active">6G</div>
+        </div>
+        <div class="sparx-body">
+            <div class="q-text">
+                a) Work out the prime factor decomposition of 396. Give your answer in index form.<br><br>
+                b) Use your answer to part a) to work out which <b>two</b> of these numbers are factors of 396.
             </div>
+            <div class="prime-cards">
+                <div class="prime-card">88 = 2³ × 11</div><div class="prime-card">14 = 2 × 7</div>
+                <div class="prime-card">121 = 11²</div><div class="prime-card">22 = 2 × 11</div>
+            </div>
+            <div class="prime-card" style="margin-top: 15px; width: 100px; display: inline-block;">9 = 3²</div>
         </div>
     </div>
 
     <div class="grid-bg"><div class="grid-floor"></div></div>
-
-    <header>
-        <p style="letter-spacing: 8px; color: #444; font-size: 9px;">MAINFRAME_CONNECTED // PANIC_KEY: [~]</p>
-        <h1>tailsphomo's edu</h1>
-    </header>
+    <header><h1>tailsphomo's edu</h1></header>
 
     <main class="container">
+        <!-- FIXED PPG PORT LINK -->
         <div onclick="launch('RagdollPhysics/index.html')" class="tile">
             <span class="icon">🕺</span>
-            <span class="name">RAGDOLL PPG</span>
-            <span class="tag">INTERNAL_PORT_77</span>
+            <span class="name">PEOPLE PLAYGROUND</span>
+            <span class="tag">INTERNAL_PORT_WEB</span>
         </div>
         <div onclick="launch('Web-Man/index.html')" class="tile">
-            <span class="icon">🕸️</span>
-            <span class="name">WEB-MAN</span>
-            <span class="tag">MOMENTUM_LINK_V4</span>
+            <span class="icon">🕸️</span><span class="name">WEB-MAN</span><span class="tag">MOMENTUM_V4</span>
         </div>
         <div onclick="launch('CookieClicker/index.html')" class="tile">
-            <span class="icon">🍪</span>
-            <span class="name">COOKIE CLICKER</span>
-            <span class="tag">DATA_MINE_01</span>
-        </div>
-        <div onclick="launch('TowerBlocks/index.html')" class="tile">
-            <span class="icon">🏗️</span>
-            <span class="name">TOWER BLOCKS</span>
-            <span class="tag">STRUCT_INTEGRITY</span>
+            <span class="icon">🍪</span><span class="name">COOKIE CLICKER</span><span class="tag">DATA_COLLECT</span>
         </div>
         <div onclick="launch('https://youtube-nocookie.com')" class="tile">
-            <span class="icon">📺</span>
-            <span class="name">YOUTUBE</span>
-            <span class="tag">BYPASS_FEED_702</span>
+            <span class="icon">📺</span><span class="name">YOUTUBE</span><span class="tag">BYPASS_FEED</span>
         </div>
     </main>
 
     <div id="player-frame">
-        <button class="close-btn" onclick="closeFrame()">← DISCONNECT_FEED</button>
+        <button class="close-btn" onclick="closeFrame()">← DISCONNECT</button>
         <iframe id="game-view" style="width:100%; height:100%; border:none;" allow="autoplay; gamepad; fullscreen; keyboard"></iframe>
     </div>
 
@@ -113,31 +87,31 @@
         function launch(url) {
             document.getElementById('game-view').src = url;
             document.getElementById('player-frame').style.display = 'block';
+            document.getElementById('game-view').focus(); // Fixes focus for panic key
         }
         function closeFrame() {
             document.getElementById('player-frame').style.display = 'none';
             document.getElementById('game-view').src = '';
         }
 
-        // PANIC ENGINE
-        window.addEventListener('keydown', function(e) {
+        // GLOBAL PANIC KEY (Works everywhere)
+        function togglePanic(e) {
             if (e.key === '`' || e.key === '~' || e.key === 'Escape') {
                 const panic = document.getElementById('panic-screen');
                 const title = document.getElementById('tab-title');
-                const icon = document.getElementById('tab-icon');
-                
                 if (panic.style.display === 'flex') {
                     panic.style.display = 'none';
                     title.innerText = "tailsphomo's edu (NoahH)";
-                    icon.href = "https://google.com";
                 } else {
                     panic.style.display = 'flex';
-                    title.innerText = "Sparx Maths - Homework";
-                    icon.href = "https://google.com";
+                    title.innerText = "Sparx Maths - Homework - 6G";
                     closeFrame();
                 }
             }
-        });
+        }
+        window.addEventListener('keydown', togglePanic);
+        // This ensures the panic button works even if you are clicking inside the game iframe
+        window.onblur = () => { setTimeout(() => { window.focus(); }, 100); };
     </script>
 </body>
 </html>
