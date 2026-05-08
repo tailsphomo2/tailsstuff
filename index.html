@@ -19,14 +19,16 @@
         .tile { position: relative; background: var(--panel); border: 1px solid var(--neon-dim); padding: 45px 20px; text-align: center; text-decoration: none; color: white; transition: 0.3s; clip-path: polygon(0 12%, 12% 0, 100% 0, 100% 88%, 88% 100%, 0 100%); cursor: pointer; }
         .tile:hover { transform: translateY(-10px); border-color: var(--neon); box-shadow: 0 0 25px var(--neon-dim); }
         .name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--neon); display: block; margin-top: 10px; }
+        
+        /* Frame Player */
         #player-frame { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
         .close-btn { position: absolute; top: 15px; left: 15px; z-index: 1001; padding: 10px 20px; background: #111; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; }
 
-        /* --- SPARX MATHS 1:1 REPLICA --- */
+        /* --- SPARX MATHS PANIC --- */
         #panic-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 9999; flex-direction: column; font-family: sans-serif; }
         .sparx-header { background: #3c99f0; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 50px; font-weight: bold; }
         .sparx-tabs { display: flex; background: #ebf5ff; padding: 10px 10px 0; border-bottom: 1px solid #cce5ff; }
-        .tab { background: #4ade80; color: white; padding: 8px 15px; border-radius: 5px 5px 0 0; margin-right: 5px; font-size: 14px; position: relative; }
+        .tab { background: #4ade80; color: white; padding: 8px 15px; border-radius: 5px 5px 0 0; margin-right: 5px; font-size: 14px; }
         .tab.active { background: #f87171; } .tab::after { content: ' \2713'; } .tab.active::after { content: ' X'; }
         .sparx-body { padding: 40px; max-width: 700px; margin: 0 auto; text-align: center; color: #444; }
         .q-text { font-size: 22px; line-height: 1.5; margin-bottom: 30px; }
@@ -36,6 +38,7 @@
 </head>
 <body>
 
+    <!-- REPLICA SPARX QUESTION SCREEN -->
     <div id="panic-screen">
         <div class="sparx-header">
             <div style="font-size: 20px;">&lsaquo; &nbsp; Sparx Maths</div>
@@ -61,18 +64,21 @@
     <header><h1>tailsphomo's edu</h1></header>
 
     <main class="container">
-        <!-- FIXED PPG PORT LINK -->
+        <!-- LINK TO YOUR ITCH.IO IFRAME FOLDER -->
         <div onclick="launch('RagdollPhysics/index.html')" class="tile">
             <span class="icon">🕺</span>
-            <span class="name">PEOPLE PLAYGROUND</span>
-            <span class="tag">INTERNAL_PORT_WEB</span>
+            <span class="name">RAGDOLL PHYSICS</span>
+            <span class="tag">EXTERNAL_LINK_ACTIVE</span>
         </div>
+        
         <div onclick="launch('Web-Man/index.html')" class="tile">
             <span class="icon">🕸️</span><span class="name">WEB-MAN</span><span class="tag">MOMENTUM_V4</span>
         </div>
+        
         <div onclick="launch('CookieClicker/index.html')" class="tile">
             <span class="icon">🍪</span><span class="name">COOKIE CLICKER</span><span class="tag">DATA_COLLECT</span>
         </div>
+        
         <div onclick="launch('https://youtube-nocookie.com')" class="tile">
             <span class="icon">📺</span><span class="name">YOUTUBE</span><span class="tag">BYPASS_FEED</span>
         </div>
@@ -87,15 +93,14 @@
         function launch(url) {
             document.getElementById('game-view').src = url;
             document.getElementById('player-frame').style.display = 'block';
-            document.getElementById('game-view').focus(); // Fixes focus for panic key
         }
         function closeFrame() {
             document.getElementById('player-frame').style.display = 'none';
             document.getElementById('game-view').src = '';
         }
 
-        // GLOBAL PANIC KEY (Works everywhere)
-        function togglePanic(e) {
+        // PANIC TRIGGER
+        window.addEventListener('keydown', function(e) {
             if (e.key === '`' || e.key === '~' || e.key === 'Escape') {
                 const panic = document.getElementById('panic-screen');
                 const title = document.getElementById('tab-title');
@@ -108,10 +113,7 @@
                     closeFrame();
                 }
             }
-        }
-        window.addEventListener('keydown', togglePanic);
-        // This ensures the panic button works even if you are clicking inside the game iframe
-        window.onblur = () => { setTimeout(() => { window.focus(); }, 100); };
+        });
     </script>
 </body>
 </html>
