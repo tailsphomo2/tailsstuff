@@ -1,6 +1,54 @@
-<!-- UPDATED LINK TO BYPASS SECURITY BLOCK -->
-<a href="https://itch.io" target="_blank" class="tile">
-    <span class="icon">☣️</span>
-    <span class="name">PEOPLE PLAYGROUND</span>
-    <span class="tag">OPEN_EXTERNAL_UPLINK</span>
-</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PPG Port - tailsphomo's edu</title>
+    <style>
+        /* This keeps the game full screen inside your site's player */
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            background: #000; display: flex; align-items: center; 
+            justify-content: center; overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        #loader { text-align: center; color: #00f2ff; }
+
+        button {
+            background: #111; color: #00f2ff; border: 2px solid #00f2ff;
+            padding: 15px 30px; font-size: 20px; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00f2ff; color: #000;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.6);
+        }
+
+        iframe { display: none; width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <h2>UPLINK READY</h2>
+        <button onclick="launchGame()">INITIALIZE_PORT</button>
+    </div>
+
+    <!-- This is the fixed itch.io embed link -->
+    <iframe 
+        id="ppg-frame"
+        src="https://itch.io" 
+        allow="autoplay; gamepad; fullscreen; keyboard"
+        allowfullscreen>
+    </iframe>
+
+    <script>
+        function launchGame() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('ppg-frame').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
