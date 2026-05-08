@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PPG Ultimate Sandbox</title>
+    <title>Active PPG Lab</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #050505; color: #555; font-family: monospace; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #050505; color: #666; font-family: monospace; user-select: none; }
         #ui { position: absolute; top: 15px; left: 15px; pointer-events: none; border-left: 4px solid #f00; padding-left: 15px; z-index: 10; }
-        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 100; }
+        #overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 100; }
         .key { color: #0cf; font-weight: bold; }
         canvas { display: block; }
     </style>
@@ -13,43 +13,31 @@
 <body>
     <div id="overlay" onclick="boot()"><h1>INITIALIZE LAB</h1></div>
     <div id="ui">
-        <h2 style="color: #eee;">PPG WEAPONS LAB</h2>
-        [S] <span class="key">SLOW-MO</span> | [WHEEL] <span class="key">ZOOM</span><br>
-        [1] PISTOL | [2] KNIFE | [3] <span class="key">TNT</span><br>
-        [P] SPAWN PERSON | [F] USE HELD ITEM
+        <h2 style="color: #eee;">ACTIVE PPG LAB</h2>
+        [DRAG] Grab & Throw | <span class="key">A / D</span> Rotate Held Item<br>
+        [P] Spawn Person | [1] Gun | [2] Knife | [3] TNT<br>
+        [F] Use Item | [S] Slow-Mo | [R] Reset
     </div>
     <canvas id="c"></canvas>
 
 <script>
 const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
-let w, h, mouse = {x:0, y:0, down:false, target:null, held:null};
-let audio, zoom = 1.0, slowMo = false;
-const gravity = 0.5, friction = 0.985;
+let w, h, mouse = {x:0, y:0, down:false, target:null, held:null}, audio, zoom = 1.0, slowMo = false;
+const gravity = 0.5, friction = 0.985, standPower = 0.4;
 let people = [], items = [], blood = [];
 
-function boot() {
-    audio = new (window.AudioContext || window.webkitAudioContext)();
-    document.getElementById('overlay').style.display = 'none';
-}
-
-function sfx(type) {
-    if(!audio) return;
-    let o = audio.createOscillator(), g = audio.createGain();
-    o.connect(g); g.connect(audio.destination);
-    if(type==='gun'){ o.type='square'; o.frequency.setValueAtTime(100, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audio.currentTime+0.1); }
-    if(type==='boom'){ o.frequency.setValueAtTime(60, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audio.currentTime+0.5); }
-    o.start(); o.stop(audio.currentTime+0.5);
-}
+function boot() { audio = new (window.AudioContext || window.webkitAudioContext)(); document.getElementById('overlay').style.display = 'none'; }
+function sfx(type) { if(!audio) return; let o = audio.createOscillator(), g = audio.createGain(); o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime+0.2); }
 
 class Point {
-    constructor(x, y) { this.x = this.oldX = x; this.y = this.oldY = y; this.active = true; }
+    constructor(x, y, radius=10) { this.x = this.oldX = x; this.y = this.oldY = y; this.radius = radius; this.isGround = false; }
     update() {
-        if(!this.active) return;
         let ts = slowMo ? 0.2 : 1.0;
         let vx = (this.x - this.oldX) * friction, vy = (this.y - this.oldY) * friction;
         this.oldX = this.x; this.oldY = this.y;
         this.x += vx * ts; this.y += (vy + gravity) * ts;
-        if(this.y > h-25) { this.y = h-25; this.oldY = this.y + vy * 0.4; }
+        // Collision with Ground
+        if(this.y > h-25) { this.y = h-25; this.oldY = this.y + vy * 0.4; this.isGround = true; } else { this.isGround = false; }
         if(this.x < 25 || this.x > w-25) { this.x = Math.max(25, Math.min(w-25, this.x)); this.oldX = this.x + vx * 0.4; }
     }
 }
@@ -64,18 +52,41 @@ class Stick {
 }
 
 function spawnPerson(x, y) {
-    let p = [new Point(x,y-100), new Point(x,y-70), new Point(x,y-30), new Point(x-20,y-65), new Point(x+20,y-65), new Point(x-35,y-20), new Point(x+35,y-20), new Point(x-15,y+25), new Point(x+15,y+25)];
-    let s = [new Stick(p[0],p[1],25,20), new Stick(p[1],p[2],45,25), new Stick(p[1],p[3],20,12), new Stick(p[1],p[4],20,12), new Stick(p[3],p[5],40,14), new Stick(p[4],p[6],40,14), new Stick(p[2],p[7],55,18), new Stick(p[2],p[8],55,18)];
-    people.push({p, s});
+    let p = [new Point(x,y-110), new Point(x,y-70), new Point(x,y-30), new Point(x-20,y-65), new Point(x+20,y-65), new Point(x-35,y-20), new Point(x+35,y-20), new Point(x-15,y+25), new Point(x+15,y+25)];
+    let s = [new Stick(p[0],p[1],25,22), new Stick(p[1],p[2],45,28), new Stick(p[3],p[5],40,14), new Stick(p[4],p[6],40,14), new Stick(p[2],p[7],55,18), new Stick(p[2],p[8],55,18)];
+    people.push({p, s, alive: true});
 }
 
+function checkCollisions() {
+    items.forEach(it => {
+        people.forEach(per => {
+            per.p.forEach(pt => {
+                let dx = pt.x - it.p2.x, dy = pt.y - it.p2.y, dist = Math.sqrt(dx*dx+dy*dy);
+                if(dist < pt.radius + 10) {
+                    let angle = Math.atan2(dy, dx);
+                    pt.x += Math.cos(angle) * 5; pt.y += Math.sin(angle) * 5;
+                    if(it.type === 'knife') spawnBlood(pt.x, pt.y, 5);
+                }
+            });
+        });
+    });
+}
+
+function spawnBlood(x, y, count) { for(let i=0; i<count; i++) blood.push({x, y, vx:(Math.random()-0.5)*15, vy:(Math.random()-0.5)*15, life:50}); }
+
 function loop() {
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle = '#050505'; ctx.fillRect(0,0,w,h);
+    ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle = '#050505'; ctx.fillRect(0,0,w,h);
     ctx.translate(mouse.x, mouse.y); ctx.scale(zoom, zoom); ctx.translate(-mouse.x, -mouse.y);
-    ctx.fillStyle = '#111'; ctx.fillRect(0, h-25, w, 25);
+    ctx.fillStyle = '#151515'; ctx.fillRect(0, h-25, w, 25);
+
+    checkCollisions();
 
     people.forEach(per => {
+        // Active Standing Logic: Pull Head (p[0]) and Neck (p[1]) towards verticality
+        if(per.alive) {
+            let standingForce = (per.p[7].isGround || per.p[8].isGround) ? standPower : 0.05;
+            per.p[0].y -= standingForce * 5; per.p[1].y -= standingForce * 2;
+        }
         per.p.forEach(pt => pt.update());
         for(let i=0; i<10; i++) per.s.forEach(st => st.update());
         per.s.forEach(st => { ctx.strokeStyle='#fff'; ctx.lineWidth=st.thick; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(st.p1.x, st.p1.y); ctx.lineTo(st.p2.x, st.p2.y); ctx.stroke(); });
@@ -85,23 +96,19 @@ function loop() {
     items.forEach(it => {
         it.p1.update(); it.p2.update();
         ctx.save(); ctx.translate(it.p1.x, it.p1.y); ctx.rotate(Math.atan2(it.p2.y-it.p1.y, it.p2.x-it.p1.x));
-        if(it.type==='pistol'){ ctx.fillStyle='#444'; ctx.fillRect(0,-5,45,12); ctx.fillStyle='#222'; ctx.fillRect(0,0,10,20); }
-        else if(it.type==='knife'){ ctx.fillStyle='#999'; ctx.fillRect(10,-3,35,6); ctx.fillStyle='#321'; ctx.fillRect(0,-6,12,12); }
-        else if(it.type==='tnt'){ ctx.fillStyle='#f00'; ctx.fillRect(0,-10,40,20); ctx.fillStyle='#fff'; ctx.fillText("TNT", 10, 5); }
+        if(it.type==='pistol'){ ctx.fillStyle='#444'; ctx.fillRect(0,-6,45,12); ctx.fillStyle='#222'; ctx.fillRect(0,0,12,22); }
+        else if(it.type==='knife'){ ctx.fillStyle='#bbb'; ctx.fillRect(10,-3,35,6); ctx.fillStyle='#421'; ctx.fillRect(0,-6,15,12); }
+        else if(it.type==='tnt'){ ctx.fillStyle='#f33'; ctx.fillRect(0,-12,40,24); }
         ctx.restore();
     });
 
-    blood.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy; b.vy += 0.2; b.life--;
-        ctx.fillStyle = `rgba(180,0,0,${b.life/50})`; ctx.fillRect(b.x, b.y, 4, 4);
-        if(b.life <= 0) blood.splice(i, 1);
-    });
+    blood.forEach((b, i) => { b.x+=b.vx; b.y+=b.vy; b.vy+=0.3; b.life--; ctx.fillStyle=`rgba(200,0,0,${b.life/50})`; ctx.fillRect(b.x, b.y, 4, 4); if(b.life<=0) blood.splice(i,1); });
 
     if(mouse.down && mouse.target) { mouse.target.x = mouse.x; mouse.target.y = mouse.y; }
     requestAnimationFrame(loop);
 }
 
-window.onwheel = (e) => { zoom = Math.max(0.5, Math.min(3, zoom - e.deltaY * 0.001)); };
+window.onwheel = (e) => zoom = Math.max(0.4, Math.min(4, zoom - e.deltaY * 0.001));
 window.onkeydown = (e) => {
     let k = e.key.toLowerCase();
     if(k==='p') spawnPerson(mouse.x, mouse.y);
@@ -111,12 +118,17 @@ window.onkeydown = (e) => {
     if(k==='s') slowMo = !slowMo;
     if(k==='r') { people=[]; items=[]; blood=[]; }
     if(mouse.held && k==='f') {
-        if(mouse.held.type==='pistol'){ sfx('gun'); mouse.held.p1.x-=40; for(let i=0; i<15; i++) blood.push({x:mouse.held.p2.x+Math.random()*150, y:mouse.held.p2.y, vx:0, vy:0, life:40}); }
-        else if(mouse.held.type==='knife'){ mouse.held.p2.x+=60; }
-        else if(mouse.held.type==='tnt'){ sfx('boom'); for(let i=0; i<50; i++) blood.push({x:mouse.held.p1.x, y:mouse.held.p1.y, vx:(Math.random()-0.5)*20, vy:(Math.random()-0.5)*20, life:60}); items.splice(items.indexOf(mouse.held),1); mouse.held=null; }
+        if(mouse.held.type==='pistol'){ sfx('gun'); mouse.held.p1.x-=40; spawnBlood(mouse.held.p2.x+100, mouse.held.p2.y, 20); }
+        else if(mouse.held.type==='knife'){ mouse.held.p2.x+=70; }
+        else if(mouse.held.type==='tnt'){ sfx('boom'); spawnBlood(mouse.held.p1.x, mouse.held.p1.y, 60); items.splice(items.indexOf(mouse.held),1); mouse.held=null; }
     }
-    if(mouse.held && k==='a') { mouse.held.p2.x-=30; mouse.held.p2.y-=30; }
-    if(mouse.held && k==='d') { mouse.held.p2.x+=30; mouse.held.p2.y+=30; }
+    // Rotation Fix: Rotate p2 around p1
+    if(mouse.held && (k==='a' || k==='d')) {
+        let angle = Math.atan2(mouse.held.p2.y-mouse.held.p1.y, mouse.held.p2.x-mouse.held.p1.x);
+        angle += (k==='a' ? -0.2 : 0.2);
+        mouse.held.p2.x = mouse.held.p1.x + Math.cos(angle) * 45;
+        mouse.held.p2.y = mouse.held.p1.y + Math.sin(angle) * 45;
+    }
 };
 
 window.onmousedown = (e) => {
