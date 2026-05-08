@@ -3,88 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Web Portal</title>
+    <title>tailsphomo's edu (NoahH)</title>
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #38bdf8;
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --bg: #020617;
+            --card-bg: rgba(30, 41, 59, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #0f172a, #020617);
+            color: #f8fafc;
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        header { margin-top: 50px; text-align: center; }
-        h1 { font-size: 3rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            width: 90%;
-            max-width: 1000px;
-            padding: 50px 0;
+        /* Animated Background Particles */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://transparenttextures.com');
+            opacity: 0.3;
+            z-index: -1;
         }
 
-        .tile {
-            background: var(--card);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 40px;
+        header {
+            margin: 80px 0 40px;
             text-align: center;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* The Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            width: 90%;
+            max-width: 1200px;
+            padding: 40px 0 100px;
+        }
+
+        /* Premium Card Styling */
+        .game-card {
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 20px;
             text-decoration: none;
             color: white;
-            transition: 0.3s;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .tile:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+        /* Glowing border on hover */
+        .game-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, var(--primary), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s;
         }
 
-        .icon { font-size: 3rem; display: block; margin-bottom: 15px; }
-        .name { font-weight: bold; font-size: 1.2rem; }
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card:hover::before { opacity: 1; }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            transition: transform 0.4s ease;
+        }
+
+        .game-card:hover .icon-circle { transform: rotate(10deg) scale(1.1); }
+
+        .game-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        .game-status {
+            font-size: 0.75rem;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .yt-status { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 40px;
+            color: #475569;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>My Game Web</h1>
-        <p style="opacity:0.6">Select a game to play</p>
+        <p class="subtitle">Personal Dashboard</p>
+        <h1>tailsphomo's edu (NoahH)</h1>
     </header>
 
-    <div class="grid">
-        <a href="CookieClicker/index.html" class="tile">
-            <span class="icon">🍪</span>
-            <span class="name">Cookie Clicker</span>
+    <main class="game-grid">
+        <!-- Game 1 -->
+        <a href="CookieClicker/index.html" class="game-card">
+            <div class="icon-circle">🍪</div>
+            <div class="game-name">Cookie Clicker</div>
+            <div class="game-status">Live v1.2</div>
         </a>
-        <a href="RagdollPhysics/index.html" class="tile">
-            <span class="icon">🕺</span>
-            <span class="name">Ragdoll PPG</span>
+
+        <!-- Game 2 -->
+        <a href="RagdollPhysics/index.html" class="game-card">
+            <div class="icon-circle">🕺</div>
+            <div class="game-name">Ragdoll PPG</div>
+            <div class="game-status">Sandbox Mode</div>
         </a>
-        <a href="TowerBlocks/index.html" class="tile">
-            <span class="icon">🏗️</span>
-            <span class="name">Tower Blocks</span>
+
+        <!-- Game 3 -->
+        <a href="TowerBlocks/index.html" class="game-card">
+            <div class="icon-circle">🏗️</div>
+            <div class="game-name">Tower Blocks</div>
+            <div class="game-status">High Score</div>
         </a>
-        <a href="Web-Man/index.html" class="tile">
-            <span class="icon">🕸️</span>
-            <span class="name">Web-Man</span>
+
+        <!-- Game 4 -->
+        <a href="Web-Man/index.html" class="game-card">
+            <div class="icon-circle">🕸️</div>
+            <div class="game-name">Web-Man</div>
+            <div class="game-status">Physics Active</div>
         </a>
-    </div>
-    <!-- YouTube Tile -->
-<a href="https://www.youtube.com" target="_blank" class="tile">
-    <span class="icon">📺</span>
-    <span class="name">YouTube</span>
-</a>
+
+        <!-- Link 5 -->
+        <a href="https://youtube.com" target="_blank" class="game-card">
+            <div class="icon-circle">📺</div>
+            <div class="game-name">YouTube</div>
+            <div class="game-status yt-status">External</div>
+        </a>
+    </main>
+
+    <footer>
+        &copy; 2024 Design by NoahH
+    </footer>
 
 </body>
 </html>
