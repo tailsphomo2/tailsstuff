@@ -1,114 +1,94 @@
+# TailsPhomo's Edu Website
+
+## index.html
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tailsphomo's games</title>
-    <style>
-        :root {
-            --bg: #0b0b0e;
-            --accent: #00ffd2;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a5;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TailsPhomo's Edu</title>
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-        header { margin-bottom: 40px; }
+    body {
+      background: #0b1220;
+      color: white;
+      min-height: 100vh;
+    }
 
-        h1 {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            margin: 0;
-            font-weight: 800;
-            letter-spacing: -2px;
-            background: linear-gradient(to bottom, #fff 40%, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    header {
+      background: #111827;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 3px solid #2563eb;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
 
-        .discord {
-            color: var(--text-dim);
-            font-size: 1rem;
-            margin-top: 10px;
-            font-family: monospace;
-            border: 1px solid #2d2d33;
-            padding: 5px 15px;
-            border-radius: 50px;
-            display: inline-block;
-        }
+    header h1 {
+      font-size: 2.2rem;
+      color: #60a5fa;
+      margin-bottom: 10px;
+    }
 
-        /* The Game Links Section */
-        .game-list {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+    header p {
+      color: #cbd5e1;
+      font-size: 1rem;
+    }
 
-        .game-link {
-            color: var(--text-main);
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 500;
-            transition: 0.3s;
-            opacity: 0.7;
-        }
+    .games {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
 
-        .game-link:hover {
-            opacity: 1;
-            color: var(--accent);
-            transform: scale(1.1);
-        }
+    .game-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 25px;
+      transition: 0.3s ease;
+      border: 2px solid transparent;
+      text-decoration: none;
+      color: white;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.35);
+    }
 
-        .glow {
-            position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; height: 300px;
-            background: var(--accent);
-            filter: blur(150px);
-            opacity: 0.1;
-            z-index: -1;
-        }
-    </style>
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: #60a5fa;
+      background: #273549;
+    }
+
+    .game-card h2 {
+      margin-bottom: 10px;
+      color: #93c5fd;
+    }
+
+    .game-card p {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+      margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="glow"></div>
+  <header>
+```
 
-    <header>
-        <h1>tailsphomo's games</h1>
-        <div class="discord">@tailsphomothesecond (discord)</div>
-    </header>
-
-    <nav class="game-list">
-        <!-- These links point to your new folders -->
-        <a href="./webman/" class="game-link">🕸️ Web-Man</a>
-        <a href="./playground/" class="game-link">🚶 Ragdoll Sandbox</a>
-        <a href="./tower/" class="game-link">🏗️ Tower Blocks</a>
-        <a href="./cookie/" class="game-link">🍪 Cookie Clicker</a>
-    </nav>
-
-</body>
-</html>
-
-<div class="links">
-    <a href="cookie.html" style="color:white; margin:10px;">Cookie Clicker</a>
-    <a href="webman.html" style="color:white; margin:10px;">Web-Man</a>
-    <a href="playground.html" style="color:white; margin:10px;">Ragdoll</a>
-</div>
-<!-- Try adding the index.html directly to the link -->
-<a href="webman/index.html" class="game-link">🕸️ Web-Man</a>
-<a href="playground/index.html" class="game-link">🚶 Ragdoll Sandbox</a>
-<a href="tower/index.html" class="game-link">🏗️ Tower Blocks</a>
-<a href="cookie/index.html" class="game-link">🍪 Cookie Clicker</a>
